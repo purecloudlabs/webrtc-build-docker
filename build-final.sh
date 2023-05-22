@@ -13,7 +13,7 @@ fi
 revision=$1
 
 mkdir -p out && chmod 777 out
-docker run --rm -ti -v "$(pwd)/out:/out" -v "$(pwd)/patches:/patches" \
+docker run --rm -v "$(pwd)/out:/out" -v "$(pwd)/patches:/patches" \
     $IMAGE /bin/bash -c "
     set -euo pipefail
     shopt -s nullglob
