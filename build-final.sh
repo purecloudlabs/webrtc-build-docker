@@ -45,11 +45,10 @@ docker run --rm -v "$(pwd)/out:/out" -v "$(pwd)/patches:/patches" \
 
         gn gen out/\$target --args=\"is_debug=false target_os=\\\"android\\\" target_cpu=\\\"\$target\\\" \$WEBRTC_COMPILE_ARGS\"
         bash -c \"source build/android/envsetup.sh && autoninja -C out/\$target webrtc\"
-
-        mkdir -p \$OUT/\$target/
-        cp out/\$target/libjingle_peerconnection_so.so \$OUT/\$target/
     done
-    cp out/arm64/lib.java/sdk/android/libwebrtc.jar \$OUT/
+
+    echo '--> Package AAR'
+    bash -c \"source build/android/envsetup.sh && ./src/tools_webrtc/android/build_aar.py --output=\"\$OUT/libwebrtc.aar\"\"
 
     echo 'Done!'
 "
