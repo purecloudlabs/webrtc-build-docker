@@ -2,7 +2,8 @@
 set -euo pipefail
 
 IMAGE=threema/webrtc-build-tools:latest
-TARGETS="${WEBRTC_TARGETS:-arm arm64 x86 x64}"
+#TARGETS="${WEBRTC_TARGETS:-arm arm64 x86 x64}"
+TARGETS="${WEBRTC_TARGETS:-arm}"
 BUILD_ARGS="${WEBRTC_BUILD_ARGS:-symbol_level=1 enable_libaom=false rtc_include_dav1d_in_internal_decoder_factory=false rtc_include_ilbc=false}"
 
 if [ $# -ne 1 ]; then
@@ -48,7 +49,7 @@ docker run --rm -v "$(pwd)/out:/out" -v "$(pwd)/patches:/patches" \
     done
 
     echo '--> Package AAR'
-    bash -c \"source build/android/envsetup.sh && ./src/tools_webrtc/android/build_aar.py --output=\"\$OUT/libwebrtc.aar\"\"
+    bash -c \"source build/android/envsetup.sh && ./tools_webrtc/android/build_aar.py --output=\"\$OUT/libwebrtc.aar\"\"
 
     echo 'Done!'
 "
