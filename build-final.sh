@@ -40,16 +40,8 @@ docker run --rm -v "$(pwd)/out:/out" -v "$(pwd)/patches:/patches" \
     for p in /patches/*.patch; do echo \"Applying \$p...\"; git apply \$p; done 
     ls -noa --time-style=long-iso /patches/*.patch > \$OUT/patches.txt
 
-    echo '==> Build'
-    for target in $TARGETS; do
-        echo \"--> Building \$target\"
-
-        gn gen out/\$target --args=\"is_debug=false target_os=\\\"android\\\" target_cpu=\\\"\$target\\\" \$WEBRTC_COMPILE_ARGS\"
-        bash -c \"source build/android/envsetup.sh && autoninja -C out/\$target webrtc\"
-    done
-
     echo '==> Package AAR'
-    bash -c \"source build/android/envsetup.sh && ./tools_webrtc/android/build_aar.py --output=\"\$OUT/libwebrtc.aar\"\"
+    bash -c \"source build/android/envsetup.sh && ./tools_webrtc/android/build_aar.py --arch=arm64-v8a --output=\"\$OUT/libwebrtc.aar\"\"
 
     echo 'Done!'
 "
