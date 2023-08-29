@@ -4,3 +4,4 @@ out/
 out-*/
 webrtc/
 /.vscode/
+.DS_Store
