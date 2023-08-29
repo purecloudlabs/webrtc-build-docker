@@ -48,7 +48,7 @@ docker run --rm -v "$(pwd)/out:/out" -v "$(pwd)/patches:/patches" \
         bash -c \"source build/android/envsetup.sh && autoninja -C out/\$target webrtc\"
     done
 
-    echo '--> Package AAR'
+    echo '==> Package AAR'
     bash -c \"source build/android/envsetup.sh && ./tools_webrtc/android/build_aar.py --output=\"\$OUT/libwebrtc.aar\"\"
 
     echo 'Done!'
