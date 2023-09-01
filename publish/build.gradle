@@ -2,7 +2,11 @@ apply plugin: 'maven'
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.artifactory'
 
-version = '1.0'
+def buildRevision = System.getenv("BUILD_REVISION")
+        ? System.getenv("BUILD_REVISION")
+        : "2999"
+
+version = '1.0.' + buildRevision
 
 configurations {
     aarLocal
