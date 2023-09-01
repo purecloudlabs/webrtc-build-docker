@@ -1,0 +1,23 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:5.1.4'
+    }
+}
+
+ext {
+    secureProperties = new Properties()
+    if (System.env.JENKINS_HOME != null) {
+        // when executing on jenkins, use environment variable-injected credentials
+        secureProperties["artifactoryUsername"] = System.env.ARTIFACTORY_USERNAME
+        secureProperties["artifactoryPassword"] = System.env.ARTIFACTORY_PASSWORD
+        secureProperties["artifactory_contextUrl"] = "https://purecloud.jfrog.io/purecloud"
+    } else {
+        // when executing elsewhere (dev laptops, etc), use the secure.properties file on disk
+        secureProperties.load(new File(rootDir.absolutePath + "/secure.properties").newReader())
+    }
+}
+
+

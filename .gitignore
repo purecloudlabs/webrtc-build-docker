@@ -5,3 +5,7 @@ out-*/
 webrtc/
 /.vscode/
 .DS_Store
+.gradle/
+build/
+
+secure.properties
