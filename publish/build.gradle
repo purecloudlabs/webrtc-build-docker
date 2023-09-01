@@ -1,0 +1,45 @@
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.artifactory'
+
+def buildRevision = System.getenv("BUILD_REVISION")
+        ? System.getenv("BUILD_REVISION")
+        : "2999"
+
+version = '1.0.' + buildRevision
+
+configurations {
+    aarLocal
+}
+
+def aarFile = file('../out/libwebrtc.aar')
+def aarArtifact = artifacts.add('aarLocal', aarFile) {
+    type 'aar'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.genesys.purecloud.android.webrtc'
+            artifactId = 'library'
+            version = version
+            artifact aarArtifact
+        }
+    }
+}
+
+artifactory {
+    contextUrl = secureProperties["artifactory_contextUrl"]
+    //The base Artifactory URL if not overridden by the publisher/resolver
+    publish {
+        repository {
+            repoKey = 'inin-android'
+            username = secureProperties["artifactoryUsername"]
+            password = secureProperties["artifactoryPassword"]
+        }
+        defaults {
+            publications('maven')
+            publishPom = true //Publish generated POM files to Artifactory (true by default)
+        }
+    }
+}
