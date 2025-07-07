@@ -3,7 +3,7 @@ set -euo pipefail
 
 IMAGE=threema/webrtc-build-tools:latest
 TARGETS="${WEBRTC_TARGETS:-arm arm64 x86 x64}"
-BUILD_ARGS="${WEBRTC_BUILD_ARGS:-symbol_level=1 enable_libaom=false rtc_include_dav1d_in_internal_decoder_factory=false rtc_include_ilbc=false}"
+BUILD_ARGS="${WEBRTC_BUILD_ARGS:-symbol_level=1 debuggable_apks=false enable_libaom=false rtc_enable_protobuf=false rtc_include_dav1d_in_internal_decoder_factory=false}"
 
 if [ $# -ne 1 ]; then
     echo "Usage: $0 <revision>"
@@ -12,8 +12,8 @@ if [ $# -ne 1 ]; then
 fi
 revision=$1
 
-mkdir -p out && chmod 777 out
-docker run --rm -v "$(pwd)/out:/out" -v "$(pwd)/patches:/patches" \
+rm -r ./out && mkdir -p ./out
+docker run --rm -ti -v "$(pwd)/out:/out" -v "$(pwd)/patches:/patches" \
     $IMAGE /bin/bash -c "
     set -euo pipefail
     shopt -s nullglob
