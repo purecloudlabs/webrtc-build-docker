@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 TARGETS="${WEBRTC_TARGETS:-arm arm64 x86 x64}"
-BUILD_ARGS="${WEBRTC_BUILD_ARGS:-symbol_level=1 enable_libaom=false rtc_include_dav1d_in_internal_decoder_factory=false rtc_include_ilbc=false}"
+BUILD_ARGS="${WEBRTC_BUILD_ARGS:-symbol_level=1 debuggable_apks=false enable_libaom=false rtc_enable_protobuf=false rtc_include_dav1d_in_internal_decoder_factory=false}"
 
 function print_usage {
     echo "Usage: $0 <command> [<args>]"
@@ -11,6 +11,7 @@ function print_usage {
     echo ""
     echo "  fetch [<revision>]"
     echo "  update"
+    echo "  sync"
     echo "  patch"
     echo "  build <${TARGETS}>"
     echo "  build-all"
@@ -113,8 +114,8 @@ case ${1-} in
         # Update sources
         docker run -it -v ${PWD}/webrtc:/webrtc threema/webrtc-build-tools:latest bash -c "
             set -euo pipefail
-            echo \"Updating source files and tracking branches\"
-            echo \"Note: This will leave all untracked branches untouched!\"
+            echo 'Updating source files and tracking branches'
+            echo 'Note: This will leave all untracked branches untouched!'
             (cd src && git rebase-update)
             echo 'Updating third party repos and running pre-compile hooks'
             gclient sync -D
