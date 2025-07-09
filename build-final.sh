@@ -2,7 +2,6 @@
 set -euo pipefail
 
 IMAGE=threema/webrtc-build-tools:latest
-TARGETS="${WEBRTC_TARGETS:-arm arm64 x86 x64}"
 BUILD_ARGS="${WEBRTC_BUILD_ARGS:-symbol_level=1 debuggable_apks=false enable_libaom=false rtc_enable_protobuf=false rtc_include_dav1d_in_internal_decoder_factory=false}"
 
 if [ $# -ne 1 ]; then
@@ -12,8 +11,8 @@ if [ $# -ne 1 ]; then
 fi
 revision=$1
 
-rm -r ./out && mkdir -p ./out
-docker run --rm -ti -v "$(pwd)/out:/out" -v "$(pwd)/patches:/patches" \
+rm -rf ./out && mkdir -p ./out
+docker run --rm -v "$(pwd)/out:/out" -v "$(pwd)/patches:/patches" \
     $IMAGE /bin/bash -c "
     set -euo pipefail
     shopt -s nullglob
@@ -22,7 +21,9 @@ docker run --rm -ti -v "$(pwd)/out:/out" -v "$(pwd)/patches:/patches" \
     export OUT='/out'
 
     echo '==> Fetching sources'
-    fetch webrtc_android
+    fetch --nohooks webrtc_android
+
+    echo '==> Change current working directory to src/ of the workspace'
     cd src
 
     echo '==> Checking out revision $revision'
