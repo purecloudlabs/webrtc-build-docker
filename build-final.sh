@@ -12,7 +12,7 @@ fi
 revision=$1
 
 rm -rf ./out && mkdir -p ./out
-docker run --rm -v "$(pwd)/out:/out" -v "$(pwd)/patches:/patches" \
+docker run --platform linux/amd64 --rm -v "$(pwd)/out:/out" -v "$(pwd)/patches:/patches" \
     $IMAGE /bin/bash -c "
     set -euo pipefail
     shopt -s nullglob
