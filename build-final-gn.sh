@@ -37,8 +37,11 @@ docker run --platform linux/amd64 --rm -v "$(pwd)/out:/out" \
     echo '==> Build directly with GN and Ninja'
     source build/android/envsetup.sh
 
+    # Define Android architectures
+    DEFAULT_ARCHS=(armeabi-v7a arm64-v8a x86 x86_64)
+
     # Build for each Android architecture
-    for arch in armeabi-v7a arm64-v8a x86 x86_64; do
+    for arch in \"\${DEFAULT_ARCHS[@]}\"; do
         echo \"Building for \$arch\"
         
         # Convert arch names
