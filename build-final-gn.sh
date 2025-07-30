@@ -56,7 +56,7 @@ docker run --platform linux/amd64 --rm -v "$(pwd)/out:/out" \
         gn gen out/\$arch --args=\"target_os=\\\"android\\\" target_cpu=\\\"\$gn_arch\\\" $BUILD_ARGS\"
         
         # Build the required targets
-        ninja -C out/\$arch sdk/android:libwebrtc sdk/android:libjingle_peerconnection_so
+        autoninja -C out/\$arch sdk/android:libwebrtc sdk/android:libjingle_peerconnection_so
     done
 
     echo '==> Create AAR manually'
