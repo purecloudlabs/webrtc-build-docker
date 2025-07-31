@@ -30,7 +30,7 @@ function build_target {
     target=$1
     build_args=${@:2}
 
-    docker run -it -v ${PWD}/webrtc:/webrtc threema/webrtc-build-tools:latest bash -c "
+    docker run --platform linux/amd64 -it -v ${PWD}/webrtc:/webrtc threema/webrtc-build-tools:latest bash -c "
         set -euo pipefail
         cd src
         gn gen out/android-${target} --args='cc_wrapper=\"ccache\" target_os=\"android\" target_cpu=\"${target}\" ${build_args}'
@@ -73,7 +73,7 @@ case ${1-} in
 
     build-tools)
         echo "Building tools image"
-        docker build --build-arg UID=$(id -u) --build-arg GID=$(id -g) \
+        docker build --platform linux/amd64 --build-arg UID=$(id -u) --build-arg GID=$(id -g) \
                      --pull --no-cache -t \
                      threema/webrtc-build-tools:latest build-tools/
         ;;
@@ -89,7 +89,7 @@ case ${1-} in
         # Fetch sources
         mkdir webrtc
         revision=${2:-main}
-        docker run -it -v ${PWD}/webrtc:/webrtc threema/webrtc-build-tools:latest bash -c "
+        docker run --platform linux/amd64 -it -v ${PWD}/webrtc:/webrtc threema/webrtc-build-tools:latest bash -c "
             set -euo pipefail
             echo 'Fetching source files'
             fetch webrtc_android
@@ -112,7 +112,7 @@ case ${1-} in
         (cd webrtc/src && git stash push -u)
 
         # Update sources
-        docker run -it -v ${PWD}/webrtc:/webrtc threema/webrtc-build-tools:latest bash -c "
+        docker run --platform linux/amd64 -it -v ${PWD}/webrtc:/webrtc threema/webrtc-build-tools:latest bash -c "
             set -euo pipefail
             echo 'Updating source files and tracking branches'
             echo 'Note: This will leave all untracked branches untouched!'
@@ -132,7 +132,7 @@ case ${1-} in
         fi
 
         # Sync sources
-        docker run -it -v ${PWD}/webrtc:/webrtc threema/webrtc-build-tools:latest bash -c "
+        docker run --platform linux/amd64 -it -v ${PWD}/webrtc:/webrtc threema/webrtc-build-tools:latest bash -c "
             set -euo pipefail
             echo 'Syncing third party repos and running pre-compile hooks'
             gclient sync -D
@@ -209,7 +209,7 @@ case ${1-} in
         require_tools_image
         
         # Run an interactive shell
-        docker run -it -v ${PWD}/webrtc:/webrtc threema/webrtc-build-tools:latest
+        docker run --platform linux/amd64 -it -v ${PWD}/webrtc:/webrtc threema/webrtc-build-tools:latest
         ;;
 
     *)
