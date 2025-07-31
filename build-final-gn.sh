@@ -12,14 +12,21 @@ fi
 WEBRTC_VERSION=$1
 echo "WebRTC version: $WEBRTC_VERSION"
 
-# Parse branch from version
-WEBRTC_VERSION_REGEX="[0-9]+\.[0-9]+\.([0-9]+)"
+# Pull recent releases, find specified version
+RELEASES_RESPONSE=$(curl -s "https://chromiumdash.appspot.com/fetch_releases?channel=Stable&platform=Android&num=50")
+RELEASES_JSON=$(echo "$RELEASES_RESPONSE" | sed -n 's/.*\({[^{]*"version"[^}]*"'${WEBRTC_VERSION//./\.}'"[^}]*}\).*/\1/p')
 
-if [[ $WEBRTC_VERSION =~ $WEBRTC_VERSION_REGEX ]]; then
-    WEBRTC_BRANCH=${BASH_REMATCH[1]}
-    echo "WebRTC branch: $WEBRTC_BRANCH"
+if [[ -n "$RELEASES_JSON" ]]; then
+    COMMIT_HASH=$(echo "$RELEASES_JSON" | sed -n 's/.*"webrtc":"\([^"]*\)".*/\1/p')
+    
+    if [[ -n "$COMMIT_HASH" ]]; then
+        echo "Commit hash for $WEBRTC_VERSION: $COMMIT_HASH"
+    else
+        echo "Unable to extract webrtc hash from json: $RELEASES_JSON"
+        exit 1
+    fi
 else
-    echo "Unable to parse WebRTC branch from version: $WEBRTC_VERSION"
+    echo "Unable to fetch metadata for version: $WEBRTC_VERSION"
     exit 1
 fi
 
@@ -36,8 +43,8 @@ docker run --platform linux/amd64 --rm -v "$(pwd)/out:/out" \
     echo '==> Change current working directory to src/ of the workspace'
     cd src
 
-    echo '==> Checking out revision branch-heads/$WEBRTC_BRANCH'
-    git checkout branch-heads/$WEBRTC_BRANCH
+    echo '==> Checking out release $WEBRTC_VERSION'
+    git checkout $COMMIT_HASH
 
     echo '==> Run gclient sync'
     gclient sync
