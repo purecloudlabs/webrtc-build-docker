@@ -1,11 +1,9 @@
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.artifactory'
 
-def buildRevision = System.getenv("BUILD_REVISION")
-        ? System.getenv("BUILD_REVISION")
-        : "2999"
-
-version = '1.0.' + buildRevision
+version = System.getenv("WEBRTC_VERSION")
+        ? System.getenv("WEBRTC_VERSION")
+        : "1.0"
 
 configurations {
     aarLocal

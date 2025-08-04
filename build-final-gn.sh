@@ -5,11 +5,30 @@ IMAGE=threema/webrtc-build-tools:latest
 BUILD_ARGS="${WEBRTC_BUILD_ARGS:-symbol_level=1 debuggable_apks=false enable_libaom=false rtc_enable_protobuf=false rtc_include_dav1d_in_internal_decoder_factory=false use_siso=false android_static_analysis=\\\"off\\\" is_component_build=false rtc_include_tests=false use_goma=false}"
 
 if [ $# -ne 1 ]; then
-    echo "Usage: $0 <revision>"
-    echo "Example: $0 branch-heads/4430"
+    echo "Usage: $0 <version>"
+    echo "Example: $0 138.0.7204.179"
     exit 1
 fi
-revision=$1
+WEBRTC_VERSION=$1
+echo "WebRTC version: $WEBRTC_VERSION"
+
+# Pull recent releases, find specified version
+RELEASES_RESPONSE=$(curl -s "https://chromiumdash.appspot.com/fetch_releases?channel=Stable&platform=Android&num=50")
+RELEASES_JSON=$(echo "$RELEASES_RESPONSE" | sed -n 's/.*\({[^{]*"version"[^}]*"'${WEBRTC_VERSION//./\.}'"[^}]*}\).*/\1/p')
+
+if [[ -n "$RELEASES_JSON" ]]; then
+    COMMIT_HASH=$(echo "$RELEASES_JSON" | sed -n 's/.*"webrtc":"\([^"]*\)".*/\1/p')
+    
+    if [[ -n "$COMMIT_HASH" ]]; then
+        echo "Commit hash for $WEBRTC_VERSION: $COMMIT_HASH"
+    else
+        echo "Unable to extract webrtc hash from json: $RELEASES_JSON"
+        exit 1
+    fi
+else
+    echo "Unable to fetch metadata for version: $WEBRTC_VERSION"
+    exit 1
+fi
 
 rm -rf ./out && mkdir -p ./out
 docker run --platform linux/amd64 --rm -v "$(pwd)/out:/out" \
@@ -24,8 +43,8 @@ docker run --platform linux/amd64 --rm -v "$(pwd)/out:/out" \
     echo '==> Change current working directory to src/ of the workspace'
     cd src
 
-    echo '==> Checking out revision $revision'
-    git checkout $revision
+    echo '==> Checking out release $WEBRTC_VERSION'
+    git checkout $COMMIT_HASH
 
     echo '==> Run gclient sync'
     gclient sync
