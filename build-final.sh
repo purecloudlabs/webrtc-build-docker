@@ -29,6 +29,7 @@ if [[ -n "$COMMIT_HASH" ]]; then
     echo "Commit hash for $WEBRTC_VERSION: $COMMIT_HASH"
 else
     echo "Unable to fetch metadata for version: $WEBRTC_VERSION"
+    echo $RELEASES_RESPONSE
     exit 1
 fi
 
