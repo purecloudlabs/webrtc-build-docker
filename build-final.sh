@@ -21,7 +21,10 @@ import sys, json
 data = json.load(sys.stdin)
 for release in data:
     if release.get('version') == '$WEBRTC_VERSION':
-        print(release.get('webrtc', ''))
+        hashes = release.get('hashes', {})
+        commit = hashes.get('webrtc')
+        if commit:
+            print(commit)
         break
 ")
 
@@ -29,7 +32,12 @@ if [[ -n "$COMMIT_HASH" ]]; then
     echo "Commit hash for $WEBRTC_VERSION: $COMMIT_HASH"
 else
     echo "Unable to fetch metadata for version: $WEBRTC_VERSION"
-    echo $RELEASES_RESPONSE
+    echo "Available versions:"
+    echo "$RELEASES_RESPONSE" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+for release in data[:10]:
+    print(f\"  {release.get('version', 'N/A')} (milestone {release.get('milestone', 'N/A')})\")" 2>/dev/null || echo "  Failed to parse available versions"
     exit 1
 fi
 
