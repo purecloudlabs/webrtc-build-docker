@@ -21,7 +21,10 @@ import sys, json
 data = json.load(sys.stdin)
 for release in data:
     if release.get('version') == '$WEBRTC_VERSION':
-        print(release.get('webrtc', ''))
+        hashes = release.get('hashes', {})
+        commit = hashes.get('webrtc')
+        if commit:
+            print(commit)
         break
 ")
 
