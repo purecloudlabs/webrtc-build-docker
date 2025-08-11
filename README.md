@@ -1,6 +1,6 @@
 # libwebrtc Build Script
 
-This is a Dockerfile to build libwebrtc for Android using the new GN based
+This is a Dockerfile to build libwebrtc for Android using the GN based
 build system.
 
 **NOTE: We do not provide any support related to building special versions, or
@@ -26,7 +26,7 @@ For subsequent builds after an update:
 For a (somewhat) reproducible build, created from within a temporary Docker container:
 
     ./cli.sh build-tools
-    ./build-final.sh <revision>
+    ./build-final.sh <version>
 
 ## Usage: cli.sh
 
@@ -105,7 +105,7 @@ whole process being done from within a temporary, deterministic Docker
 container:
 
     ./cli.sh build-tools
-    ./build-final.sh <revision>
+    ./build-final.sh <version>
 
 This guarantees the absence of a cache (because it always fetches fresh code),
 consistent permissions and filesystem paths (so that your username and workdir
@@ -113,6 +113,11 @@ isn't included in the binary's debug info) and will ensure that you don't
 forget to apply patches (because it always applies all patches at
 `patches/*.patch`).
 
+The provided version is used to find the exact commit hash to build the library. This guarantees you'll get the exact version requested, not just the latest on a given branch-head. You can find the latest releases at https://chromiumdash.appspot.com/releases?platform=Android
+
+Example:
+
+    ./build-final.sh 138.0.7204.180
 
 ## Patches
 
