@@ -1,9 +1,11 @@
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.artifactory'
 
-version = System.getenv("WEBRTC_VERSION")
-        ? System.getenv("WEBRTC_VERSION")
-        : "1.0"
+def webrtcVersion = System.getenv("WEBRTC_VERSION")
+if (!webrtcVersion) {
+    throw new GradleException("WEBRTC_VERSION environment variable is required but not set")
+}
+version = webrtcVersion
 
 configurations {
     aarLocal
@@ -22,6 +24,14 @@ publishing {
             version = version
             artifact aarArtifact
         }
+    }
+}
+
+task verifyVersion {
+    doLast {
+        println "WEBRTC_VERSION: ${version}"
+        println "AAR file exists: ${aarFile.exists()}"
+        println "Ready to publish version ${version}"
     }
 }
 

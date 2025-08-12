@@ -14,19 +14,30 @@ echo "WebRTC version: $WEBRTC_VERSION"
 
 # Pull recent releases, find specified version
 RELEASES_RESPONSE=$(curl -s "https://chromiumdash.appspot.com/fetch_releases?channel=Stable&platform=Android&num=50")
-RELEASES_JSON=$(echo "$RELEASES_RESPONSE" | sed -n 's/.*\({[^{]*"version"[^}]*"'${WEBRTC_VERSION//./\.}'"[^}]*}\).*/\1/p')
 
-if [[ -n "$RELEASES_JSON" ]]; then
-    COMMIT_HASH=$(echo "$RELEASES_JSON" | sed -n 's/.*"webrtc":"\([^"]*\)".*/\1/p')
-    
-    if [[ -n "$COMMIT_HASH" ]]; then
-        echo "Commit hash for $WEBRTC_VERSION: $COMMIT_HASH"
-    else
-        echo "Unable to extract webrtc hash from json: $RELEASES_JSON"
-        exit 1
-    fi
+# Use python to parse JSON properly
+COMMIT_HASH=$(echo "$RELEASES_RESPONSE" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+for release in data:
+    if release.get('version') == '$WEBRTC_VERSION':
+        hashes = release.get('hashes', {})
+        commit = hashes.get('webrtc')
+        if commit:
+            print(commit)
+        break
+")
+
+if [[ -n "$COMMIT_HASH" ]]; then
+    echo "Commit hash for $WEBRTC_VERSION: $COMMIT_HASH"
 else
     echo "Unable to fetch metadata for version: $WEBRTC_VERSION"
+    echo "Available versions:"
+    echo "$RELEASES_RESPONSE" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+for release in data[:10]:
+    print(f\"  {release.get('version', 'N/A')} (milestone {release.get('milestone', 'N/A')})\")" 2>/dev/null || echo "  Failed to parse available versions"
     exit 1
 fi
 
