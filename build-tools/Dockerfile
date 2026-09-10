@@ -48,9 +48,12 @@ ENV CCACHE_SLOPPINESS include_file_mtime
 # Run as user
 USER $USERNAME
 
-# Run fetch and gclient initially since this pulls a lot of data when run
-# for the first time
-RUN fetch --help > /dev/null \
+# fetch/gclient refuse to run at all until depot_tools' private Python3/CIPD toolchain
+# is bootstrapped ("python3_bin_reldir.txt not found..."), which hasn't happened yet on
+# this fresh clone. ensure_bootstrap does that bootstrap directly. Do it here so it's
+# baked into the image instead of repeated (and pulling a lot of data) on every build.
+RUN ensure_bootstrap \
+ && fetch --help > /dev/null \
  && gclient --help > /dev/null
 
 # Set working directory
